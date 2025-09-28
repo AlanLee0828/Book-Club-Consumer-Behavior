@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>行为学习理论思维导图</title>
+    <style>
+        @font-face {
+            font-family: 'SourceHanSerif';
+            src: url('./fonts/SourceHanSerifCN-Regular-1.otf') format('opentype');
+            font-weight: 400;
+        }
+        @font-face {
+            font-family: 'SourceHanSerif';
+            src: url('./fonts/SourceHanSerifCN-Medium-6.otf') format('opentype');
+            font-weight: 500;
+        }
+        @font-face {
+            font-family: 'SourceHanSerif';
+            src: url('./fonts/SourceHanSerifCN-SemiBold-7.otf') format('opentype');
+            font-weight: 600;
+        }
+        @font-face {
+            font-family: 'SourceHanSerif';
+            src: url('./fonts/SourceHanSerifCN-Bold-2.otf') format('opentype');
+            font-weight: 700;
+        }
+        @font-face {
+            font-family: 'SourceHanSerif';
+            src: url('./fonts/SourceHanSerifCN-Heavy-4.otf') format('opentype');
+            font-weight: 800;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'SourceHanSerif', serif;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+            cursor: grab;
+            overflow: hidden;
+        }
+
+        .container.dragging {
+            cursor: grabbing;
+        }
+
+        .mindmap {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transform-origin: center;
+            transition: transform 0.1s ease-out;
+            width: 1400px;
+            height: 900px;
+        }
+
+        .node {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #fff;
+            border-radius: 12px;
+            padding: 12px 16px;
+            text-align: center;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 16px rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .node:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .main-title {
+            font-weight: 800;
+            font-size: 20px;
+            color: #ffd700;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-weight: 400;
+            font-size: 12px;
+            opacity: 0.9;
+            line-height: 1.3;
+        }
+
+        .branch-title {
+            font-weight: 700;
+            font-size: 16px;
+            color: #ffd700;
+            margin-bottom: 6px;
+        }
+
+        .category-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #ffd700;
+            margin-bottom: 4px;
+        }
+
+        .detail-title {
+            font-weight: 500;
+            font-size: 12px;
+            color: #ffd700;
+            margin-bottom: 4px;
+        }
+
+        .example {
+            font-style: italic;
+            font-size: 10px;
+            opacity: 0.8;
+            margin-top: 4px;
+        }
+
+        .connection {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.6);
+            z-index: -1;
+        }
+
+        .h-line {
+            height: 2px;
+        }
+
+        .v-line {
+            width: 2px;
+        }
+
+        .controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid #fff;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'SourceHanSerif', serif;
+            font-size: 12px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .info {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 11px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="container">
+        <div class="mindmap" id="mindmap">
+            <!-- 主题 -->
+            <div class="node" style="top: 50px; left: 550px; width: 300px; height: 80px;">
+                <div class="main-title">行为学习理论</div>
+                <div class="subtitle">核心: 关注外部刺激(S)与可观察反应(R)的联结</div>
+            </div>
+
+            <!-- 主要分支 -->
+            <div class="node" style="top: 180px; left: 250px; width: 200px; height: 60px;">
+                <div class="branch-title">经典条件反射</div>
+                <div class="subtitle">(Classical Conditioning)</div>
+            </div>
+
+            <div class="node" style="top: 180px; left: 950px; width: 200px; height: 60px;">
+                <div class="branch-title">工具性条件反射</div>
+                <div class="subtitle">(Instrumental Conditioning)</div>
+            </div>
+
+            <!-- 经典条件反射子分支 -->
+            <div class="node" style="top: 280px; left: 50px; width: 150px; height: 80px;">
+                <div class="category-title">定义</div>
+                <div class="subtitle">通过刺激配对，使中性刺激也能引发自然反应</div>
+            </div>
+
+            <div class="node" style="top: 280px; left: 250px; width: 150px; height: 80px;">
+                <div class="category-title">核心机制</div>
+                <div class="subtitle">(巴甫洛夫模型)</div>
+            </div>
+
+            <div class="node" style="top: 280px; left: 450px; width: 150px; height: 80px;">
+                <div class="category-title">相关原理</div>
+            </div>
+
+            <!-- 核心机制详细 -->
+            <div class="node" style="top: 400px; left: 150px; width: 130px; height: 70px;">
+                <div class="detail-title">作用前</div>
+                <div class="subtitle">UCS → UCR</div>
+            </div>
+
+            <div class="node" style="top: 400px; left: 300px; width: 130px; height: 70px;">
+                <div class="detail-title">作用中</div>
+                <div class="subtitle">UCS+NS → UCR</div>
+            </div>
+
+            <div class="node" style="top: 400px; left: 450px; width: 130px; height: 70px;">
+                <div class="detail-title">作用后</div>
+                <div class="subtitle">CS → CR</div>
+            </div>
+
+            <!-- 相关原理详细 -->
+            <div class="node" style="top: 400px; left: 650px; width: 140px; height: 90px;">
+                <div class="detail-title">重复</div>
+                <div class="subtitle">强化联结</div>
+                <div class="example">例: 广告语反复播放</div>
+            </div>
+
+            <div class="node" style="top: 520px; left: 550px; width: 140px; height: 90px;">
+                <div class="detail-title">消退</div>
+                <div class="subtitle">联结减弱</div>
+                <div class="example">例: 品牌失去独特性</div>
+            </div>
+
+            <div class="node" style="top: 520px; left: 750px; width: 140px; height: 90px;">
+                <div class="detail-title">刺激泛化</div>
+                <div class="subtitle">相似刺激引发相似反应</div>
+                <div class="example">例: 模仿名牌包装</div>
+            </div>
+
+            <div class="node" style="top: 640px; left: 650px; width: 140px; height: 90px;">
+                <div class="detail-title">刺激甄别</div>
+                <div class="subtitle">区分不同刺激</div>
+                <div class="example">例: 认准正品，拒绝仿冒</div>
+            </div>
+
+            <!-- 工具性条件反射子分支 -->
+            <div class="node" style="top: 280px; left: 850px; width: 150px; height: 80px;">
+                <div class="category-title">定义</div>
+                <div class="subtitle">个体为获得积极结果或避免消极结果而进行的刻意行为</div>
+            </div>
+
+            <div class="node" style="top: 280px; left: 1050px; width: 150px; height: 80px;">
+                <div class="category-title">核心机制</div>
+                <div class="subtitle">(行为的后果)</div>
+            </div>
+
+            <div class="node" style="top: 280px; left: 1250px; width: 150px; height: 80px;">
+                <div class="category-title">强化程序</div>
+                <div class="subtitle">(Schedules)</div>
+            </div>
+
+            <!-- 核心机制详细 -->
+            <div class="node" style="top: 400px; left: 950px; width: 140px; height: 90px;">
+                <div class="detail-title">正强化</div>
+                <div class="subtitle">给予积极结果 → 增加行为</div>
+                <div class="example">例: 使用产品获赞美</div>
+            </div>
+
+            <div class="node" style="top: 400px; left: 1150px; width: 140px; height: 90px;">
+                <div class="detail-title">负强化</div>
+                <div class="subtitle">消除消极结果 → 增加行为</div>
+                <div class="example">例: 用产品避免社交尴尬</div>
+            </div>
+
+            <div class="node" style="top: 520px; left: 950px; width: 140px; height: 90px;">
+                <div class="detail-title">惩罚</div>
+                <div class="subtitle">给予消极结果 → 减少行为</div>
+                <div class="example">例: 用产品被朋友嘲笑</div>
+            </div>
+
+            <div class="node" style="top: 520px; left: 1150px; width: 140px; height: 90px;">
+                <div class="detail-title">消退</div>
+                <div class="subtitle">消除积极结果 → 减少行为</div>
+                <div class="example">例: 以前获赞的产品不再有效</div>
+            </div>
+
+            <!-- 强化程序详细 -->
+            <div class="node" style="top: 400px; left: 1350px; width: 130px; height: 90px;">
+                <div class="detail-title">固定时距</div>
+                <div class="subtitle">按固定时间奖励</div>
+                <div class="example">例: 季节性大甩卖</div>
+            </div>
+
+            <div class="node" style="top: 520px; left: 1350px; width: 130px; height: 90px;">
+                <div class="detail-title">不定时距</div>
+                <div class="subtitle">按不确定时间奖励</div>
+                <div class="example">例: 神秘顾客突击检查</div>
+            </div>
+
+            <div class="node" style="top: 640px; left: 1250px; width: 130px; height: 90px;">
+                <div class="detail-title">固定比率</div>
+                <div class="subtitle">按固定次数奖励</div>
+                <div class="example">例: 咖啡店集点卡</div>
+            </div>
+
+            <div class="node" style="top: 640px; left: 1400px; width: 130px; height: 90px;">
+                <div class="detail-title">不定比率</div>
+                <div class="subtitle">按不确定次数奖励</div>
+                <div class="example">例: 老虎机抽奖</div>
+            </div>
+
+            <!-- 连接线 -->
+            <!-- 主题到主要分支 (主题中心700px) -->
+            <div class="connection v-line" style="top: 130px; left: 700px; height: 50px;"></div>
+            <div class="connection h-line" style="top: 155px; left: 350px; width: 700px;"></div>
+            <div class="connection v-line" style="top: 155px; left: 350px; height: 25px;"></div>
+            <div class="connection v-line" style="top: 155px; left: 1050px; height: 25px;"></div>
+
+            <!-- 经典条件反射分支 (分支中心350px) -->
+            <div class="connection v-line" style="top: 240px; left: 350px; height: 40px;"></div>
+            <div class="connection h-line" style="top: 260px; left: 125px; width: 450px;"></div>
+            <div class="connection v-line" style="top: 260px; left: 125px; height: 20px;"></div>
+            <div class="connection v-line" style="top: 260px; left: 325px; height: 20px;"></div>
+            <div class="connection v-line" style="top: 260px; left: 525px; height: 20px;"></div>
+
+            <!-- 核心机制详细连接 (核心机制中心325px) -->
+            <div class="connection v-line" style="top: 360px; left: 325px; height: 40px;"></div>
+            <div class="connection h-line" style="top: 380px; left: 215px; width: 220px;"></div>
+            <div class="connection v-line" style="top: 380px; left: 215px; height: 20px;"></div>
+            <div class="connection v-line" style="top: 380px; left: 365px; height: 20px;"></div>
+            <div class="connection v-line" style="top: 380px; left: 515px; height: 20px;"></div>
+
+            <!-- 相关原理详细连接 (相关原理中心525px) -->
+            <div class="connection v-line" style="top: 360px; left: 525px; height: 40px;"></div>
+            <div class="connection h-line" style="top: 380px; left: 525px; width: 195px;"></div>
+            <div class="connection v-line" style="top: 380px; left: 720px; height: 20px;"></div>
+            <div class="connection v-line" style="top: 490px; left: 720px; height: 30px;"></div>
+            <div class="connection h-line" style="top: 505px; left: 620px; width: 200px;"></div>
+            <div class="connection v-line" style="top: 505px; left: 620px; height: 15px;"></div>
+            <div class="connection v-line" style="top: 505px; left: 820px; height: 15px;"></div>
+            <div class="connection v-line" style="top: 610px; left: 720px; height: 30px;"></div>
+
+            <!-- 工具性条件反射分支 (分支中心1050px) -->
+            <div class="connection v-line" style="top: 240px; left: 1050px; height: 40px;"></div>
+            <div class="connection h-line" style="top: 260px; left: 925px; width: 450px;"></div>
+            <div class="connection v-line" style="top: 260px; left: 925px; height: 20px;"></div>
+            <div class="connection v-line" style="top: 260px; left: 1125px; height: 20px;"></div>
+            <div class="connection v-line" style="top: 260px; left: 1325px; height: 20px;"></div>
+
+            <!-- 核心机制详细连接 (核心机制中心1125px) -->
+            <div class="connection v-line" style="top: 360px; left: 1125px; height: 40px;"></div>
+            <div class="connection h-line" style="top: 380px; left: 1020px; width: 210px;"></div>
+            <div class="connection v-line" style="top: 380px; left: 1020px; height: 20px;"></div>
+            <div class="connection v-line" style="top: 380px; left: 1220px; height: 20px;"></div>
+            <div class="connection v-line" style="top: 490px; left: 1020px; height: 30px;"></div>
+            <div class="connection h-line" style="top: 505px; left: 1020px; width: 200px;"></div>
+            <div class="connection v-line" style="top: 505px; left: 1220px; height: 15px;"></div>
+
+            <!-- 强化程序详细连接 (强化程序中心1325px) -->
+            <div class="connection v-line" style="top: 360px; left: 1325px; height: 40px;"></div>
+            <div class="connection h-line" style="top: 380px; left: 1325px; width: 90px;"></div>
+            <div class="connection v-line" style="top: 380px; left: 1415px; height: 20px;"></div>
+            <div class="connection v-line" style="top: 490px; left: 1415px; height: 30px;"></div>
+            <div class="connection h-line" style="top: 505px; left: 1315px; width: 100px;"></div>
+            <div class="connection v-line" style="top: 505px; left: 1415px; height: 15px;"></div>
+            <div class="connection v-line" style="top: 610px; left: 1325px; height: 30px;"></div>
+            <div class="connection h-line" style="top: 625px; left: 1325px; width: 140px;"></div>
+            <div class="connection v-line" style="top: 625px; left: 1465px; height: 15px;"></div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="control-btn" onclick="zoomIn()">放大 +</button>
+        <button class="control-btn" onclick="zoomOut()">缩小 -</button>
+        <button class="control-btn" onclick="resetView()">重置视图</button>
+    </div>
+
+    <div class="info">
+        <div>鼠标拖拽: 移动视图</div>
+        <div>滚轮: 缩放</div>
+        <div>双击: 重置视图</div>
+    </div>
+
+    <script>
+        let scale = 0.8; // 初始缩放比例调小
+        let translateX = 0;
+        let translateY = 0;
+        let isDragging = false;
+        let startX, startY;
+
+        const mindmap = document.getElementById('mindmap');
+        const container = document.getElementById('container');
+
+        function zoomIn() {
+            scale = Math.min(scale * 1.2, 2);
+            updateTransform();
+        }
+
+        function zoomOut() {
+            scale = Math.max(scale / 1.2, 0.3);
+            updateTransform();
+        }
+
+        function resetView() {
+            scale = 0.8;
+            translateX = 0;
+            translateY = 0;
+            updateTransform();
+        }
+
+        function updateTransform() {
+            mindmap.style.transform = `translate(calc(-50% + ${translateX}px), calc(-50% + ${translateY}px)) scale(${scale})`;
+        }
+
+        // 初始化视图
+        updateTransform();
+
+        container.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? 0.9 : 1.1;
+            scale = Math.max(0.3, Math.min(2, scale * delta));
+            updateTransform();
+        });
+
+        container.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX - translateX;
+            startY = e.clientY - translateY;
+            container.classList.add('dragging');
+            e.preventDefault();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            translateX = e.clientX - startX;
+            translateY = e.clientY - startY;
+            updateTransform();
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            container.classList.remove('dragging');
+        });
+
+        container.addEventListener('dblclick', resetView);
+
+        // 触摸设备支持
+        let touchStartX, touchStartY, touchStartDistance;
+
+        container.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                isDragging = true;
+                touchStartX = e.touches[0].clientX - translateX;
+                touchStartY = e.touches[0].clientY - translateY;
+            } else if (e.touches.length === 2) {
+                touchStartDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+            }
+            e.preventDefault();
+        });
+
+        container.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 1 && isDragging) {
+                translateX = e.touches[0].clientX - touchStartX;
+                translateY = e.touches[0].clientY - touchStartY;
+                updateTransform();
+            } else if (e.touches.length === 2) {
+                const distance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                const scaleChange = distance / touchStartDistance;
+                scale = Math.max(0.3, Math.min(2, scale * scaleChange));
+                touchStartDistance = distance;
+                updateTransform();
+            }
+            e.preventDefault();
+        });
+
+        container.addEventListener('touchend', () => {
+            isDragging = false;
+        });
+
+        // 键盘快捷键
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case '+':
+                case '=':
+                    zoomIn();
+                    break;
+                case '-':
+                    zoomOut();
+                    break;
+                case '0':
+                    resetView();
+                    break;
+            }
+        });
+    </script>
+</body>
+</html>
