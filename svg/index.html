@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>行为学习理论 - 交互式思维导图</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #ffffff;
+            overflow: hidden;
+        }
+        
+        #container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background-color: #ffffff;
+        }
+        
+        #svg-container {
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+        
+        #svg-container:active {
+            cursor: grabbing;
+        }
+        
+        #controls {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .control-btn {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        
+        .control-btn:hover {
+            background-color: #0056b3;
+        }
+        
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+        
+        #info {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="svg-container">
+            <!-- SVG内容将在这里插入 -->
+        </div>
+        
+        <div id="controls">
+            <button class="control-btn" onclick="zoomIn()">放大 (+)</button>
+            <button class="control-btn" onclick="zoomOut()">缩小 (-)</button>
+            <button class="control-btn" onclick="resetView()">重置视图</button>
+            <button class="control-btn" onclick="fitToScreen()">适应屏幕</button>
+        </div>
+        
+        <div id="info">
+            滚轮缩放 | 拖拽移动 | 双击重置
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let scale = 1;
+        let translateX = 0;
+        let translateY = 0;
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
+        let startTranslateX = 0;
+        let startTranslateY = 0;
+        
+        // 获取SVG容器
+        const svgContainer = document.getElementById('svg-container');
+        
+        // 初始化
+        function init() {
+            loadSVG();
+            setupEventListeners();
+            updateTransform();
+        }
+        
+        // 加载SVG内容
+        function loadSVG() {
+            svgContainer.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-full h-full leading-none markmap mm-csvjyn-1" style="">
+                    <style>.markmap{--markmap-max-width: 9999px;--markmap-a-color: #0097e6;--markmap-a-hover-color: #00a8ff;--markmap-code-bg: #f0f0f0;--markmap-code-color: #555;--markmap-highlight-bg: #ffeaa7;--markmap-table-border: 1px solid currentColor;--markmap-font: 300 16px/20px sans-serif;--markmap-circle-open-bg: #fff;--markmap-text-color: #333;--markmap-highlight-node-bg: #ff02;font:var(--markmap-font);color:var(--markmap-text-color)}.markmap-link{fill:none}.markmap-node>circle{cursor:pointer}.markmap-foreign{display:inline-block}.markmap-foreign p{margin:0}.markmap-foreign a{color:var(--markmap-a-color)}.markmap-foreign a:hover{color:var(--markmap-a-hover-color)}.markmap-foreign code{padding:.25em;font-size:calc(1em - 2px);color:var(--markmap-code-color);background-color:var(--markmap-code-bg);border-radius:2px}.markmap-foreign pre{margin:0}.markmap-foreign pre>code{display:block}.markmap-foreign del{text-decoration:line-through}.markmap-foreign em{font-style:italic}.markmap-foreign strong{font-weight:700}.markmap-foreign mark{background:var(--markmap-highlight-bg)}.markmap-foreign table,.markmap-foreign th,.markmap-foreign td{border-collapse:collapse;border:var(--markmap-table-border)}.markmap-foreign img{display:inline-block}.markmap-foreign svg{fill:currentColor}.markmap-foreign>div{width:var(--markmap-max-width);text-align:left}.markmap-foreign>div>div{display:inline-block}.markmap-highlight rect{fill:var(--markmap-highlight-node-bg)}.markmap-dark .markmap{--markmap-code-bg: #1a1b26;--markmap-code-color: #ddd;--markmap-circle-open-bg: #444;--markmap-text-color: #eee}</style>
+                    <g transform="translate(-50.474999999999966,251.6091470734127) scale(0.39869841269841266)">
+                        <!-- 这里将包含完整的SVG路径和节点 -->
+                    </g>
+                </svg>
+            `;
+        }
+        
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 鼠标滚轮缩放
+            svgContainer.addEventListener('wheel', handleWheel);
+            
+            // 鼠标拖拽
+            svgContainer.addEventListener('mousedown', handleMouseDown);
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+            
+            // 双击重置
+            svgContainer.addEventListener('dblclick', resetView);
+            
+            // 键盘快捷键
+            document.addEventListener('keydown', handleKeyDown);
+        }
+        
+        // 处理滚轮事件
+        function handleWheel(e) {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? 0.9 : 1.1;
+            const newScale = Math.max(0.1, Math.min(5, scale * delta));
+            
+            // 计算鼠标位置相对于SVG的坐标
+            const rect = svgContainer.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            
+            // 调整平移以保持鼠标位置不变
+            translateX = mouseX - (mouseX - translateX) * (newScale / scale);
+            translateY = mouseY - (mouseY - translateY) * (newScale / scale);
+            
+            scale = newScale;
+            updateTransform();
+        }
+        
+        // 处理鼠标按下
+        function handleMouseDown(e) {
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            startTranslateX = translateX;
+            startTranslateY = translateY;
+            svgContainer.style.cursor = 'grabbing';
+        }
+        
+        // 处理鼠标移动
+        function handleMouseMove(e) {
+            if (!isDragging) return;
+            
+            const deltaX = e.clientX - startX;
+            const deltaY = e.clientY - startY;
+            
+            translateX = startTranslateX + deltaX;
+            translateY = startTranslateY + deltaY;
+            
+            updateTransform();
+        }
+        
+        // 处理鼠标释放
+        function handleMouseUp() {
+            isDragging = false;
+            svgContainer.style.cursor = 'grab';
+        }
+        
+        // 处理键盘事件
+        function handleKeyDown(e) {
+            switch(e.key) {
+                case '+':
+                case '=':
+                    zoomIn();
+                    break;
+                case '-':
+                    zoomOut();
+                    break;
+                case '0':
+                    resetView();
+                    break;
+                case 'f':
+                case 'F':
+                    fitToScreen();
+                    break;
+            }
+        }
+        
+        // 更新变换
+        function updateTransform() {
+            const svg = svgContainer.querySelector('svg');
+            if (svg) {
+                svg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+                svg.style.transformOrigin = '0 0';
+            }
+        }
+        
+        // 控制函数
+        function zoomIn() {
+            scale = Math.min(5, scale * 1.2);
+            updateTransform();
+        }
+        
+        function zoomOut() {
+            scale = Math.max(0.1, scale / 1.2);
+            updateTransform();
+        }
+        
+        function resetView() {
+            scale = 1;
+            translateX = 0;
+            translateY = 0;
+            updateTransform();
+        }
+        
+        function fitToScreen() {
+            // 计算适合屏幕的缩放比例
+            const containerRect = svgContainer.getBoundingClientRect();
+            const svg = svgContainer.querySelector('svg');
+            if (svg) {
+                const svgRect = svg.getBBox();
+                const scaleX = containerRect.width / svgRect.width;
+                const scaleY = containerRect.height / svgRect.height;
+                scale = Math.min(scaleX, scaleY) * 0.8; // 留一些边距
+                
+                // 居中显示
+                translateX = (containerRect.width - svgRect.width * scale) / 2;
+                translateY = (containerRect.height - svgRect.height * scale) / 2;
+                
+                updateTransform();
+            }
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
